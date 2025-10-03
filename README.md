@@ -1,3 +1,6 @@
+![PyServeUz Logo](pyserve.jpg)
+
+
 # PyServeUz : Python Web Framework built for learning purposes
 
 ![build](https://badgen.net/badge/purpose-learning/passing/green?icon=github)
@@ -5,9 +8,7 @@
 [![PyPI version](https://badgen.net/pypi/v/requests)](https://pypi.org/project/requests/)
 
 
-PyServeUz is a lightweight Python web framework created for learning and experimentation.  
-
-It follows the WSGI standard and works seamlessly with any WSGI application server such as Gunicorn or uWSGI.
+PyServeUz is a lightweight Python web framework created for learning and experimentation.  It follows the WSGI standard and works seamlessly with any WSGI application server such as Gunicorn or uWSGI.
 
 
 ## Installation
@@ -21,7 +22,7 @@ pip install pyserveuz
 ### Basic usage:
 
 ```python
-from pyserveuz.api import PyServeApp
+from pyserveuz.app import PyServeApp
 
 app = PyServeApp()
 
@@ -66,9 +67,7 @@ def json_handler(req,resp):
 
 ### Unit tests
 
-The recommended way to write unit tests in PyServeUz is by using [pytest](https://docs.pytest.org/en/latest/).  
-PyServeUz provides two built-in fixtures that simplify testing your applications.  
-The first one is `app`, which represents an instance of the main `API` class. 
+The recommended way to write unit tests in PyServeUz is by using [pytest](https://docs.pytest.org/en/latest/).PyServeUz provides two built-in fixtures that simplify testing your applications.  The first one is `app`, which represents an instance of the main `PyServeApp` class. 
 
 
 ```python
@@ -83,11 +82,7 @@ def test_duplicate_routes_throws_exception(app):
         def home2(req,resp):
             resp.text = "Hello from home2"
 ```
-The other one is `client`, which you can use to send HTTP requests to your handlers.  
-It is built on top of the popular [requests](https://requests.readthedocs.io/) library,  
-so the API should feel very familiar if you have used `requests` before.  
-With the `client` fixture, you can easily test endpoints by sending GET, POST,  
-or other HTTP requests and then asserting the responses in your unit tests.
+The other one is `client`, which you can use to send HTTP requests to your handlers.  It is built on top of the popular [requests](https://requests.readthedocs.io/) library,  so the API should feel very familiar if you have used `requests` before.  With the `client` fixture, you can easily test endpoints by sending GET, POST, or other HTTP requests and then asserting the responses in your unit tests.
 
 
 ```python
@@ -106,9 +101,9 @@ def test_parameterized_routing(app,test_client):
 The default folder for templates is 'templates'. You can change it when initialializing the main 'API()' class : 
 
 
-'''python
-app = API(templates_dir = "templates_dir_name")
-'''
+```python 
+app = PyServeApp(templates_dir = "templates_dir_name")
+```
 
 Then you can use HTML files in that folder like so in a handler:
 
@@ -129,9 +124,9 @@ def template_handler(req,resp):
 
 Just like templates, the default folder for static files is 'static' and you can override it:
 
-'''python
+```python
 app = API(static_dir="static_dir_name")
-'''
+```
 
 Then you can use the files inside this folder in HTML files:
 
@@ -156,31 +151,30 @@ PyServeUz provides a simple middleware system that lets you run custom logic
 before and after each request. 
 
 ```python
-from webob import Request
+from pyserveuz.app import PyServeApp
+from pyserveuz.middleware import Middleware
 
-class CustomMiddleware:
-    def __init__(self,app):
-        self.app = app
-        
-        
-    def add(self,middleware_class):
-        self.app = middleware_class(self.app)
-        
-    def process_request(self,req):
-        pass
+app = PyServeApp()
+
+
+class LoggingMiddleware(Middleware):
+    def process_request(self, req):
+        print("request is being called")
     
-    def process_response(self,req,resp):
-        pass
-    
-    def handle_request(self,request):
-        self.process_request(request)
-        response = self.app.handle_request(request)
-        self.process_response(request,response)
-        
-        return response
-    
-    def __call__(self,environ,start_response):
-        request = Request(environ)
-        response = self.app.handle_request(request)
-        return response(environ,start_response) 
+    def process_response(self, req, resp):
+        print("response has been generated")
+
+app.add_middleware(LoggingMiddleware)
+
 ```
+
+## Features
+
+- WSGI compatible
+- Parameterized and basic routing
+- Class based handlers
+- Test Client
+- Support for templates
+- Support for static files
+- Custom exception handler
+- Middleware
