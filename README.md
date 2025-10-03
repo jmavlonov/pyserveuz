@@ -1,4 +1,4 @@
-![PyServeUz Logo](pyserve.jpg)
+![PyServeUz Logo](pyserve.png)
 
 
 # PyServeUz : Python Web Framework built for learning purposes
